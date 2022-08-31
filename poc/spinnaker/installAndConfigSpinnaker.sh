@@ -21,7 +21,7 @@ function deployHalAndUpdateServiceAccount() {
     kubectl delete deployment hal || true
     kubectl create deployment hal --image gcr.io/spinnaker-marketplace/halyard:stable
     cd $GIT_PATH_SIGEVENTS/poc/spinnaker
-    kubectl create -f spinnakerServiceAccount.yaml
+    kubectl create -f spinnakerServiceAccount.yaml || true
     kubectl patch deployment hal --patch '{"spec": {"template": {"spec": {"serviceAccountName":"spinnaker-service-account"}}}}'
     echo "Sleep for 10Sec for hal deployment to start"
     sleep 10
@@ -81,12 +81,12 @@ kubectl create -f - <<EOF || true
 apiVersion: eventing.knative.dev/v1
 kind: Trigger
 metadata:
-  name: cd-artifact-published-to-spinnaker-poc
+  name: cd-artifact-packaged-to-spinnaker-poc
 spec:
   broker: events-broker
   filter:
     attributes:
-      type: cd.artifact.published.v1
+      type: cd.artifact.packaged.v1
   subscriber:
     uri: http://spin-echo.spinnaker:8089/cdevent/consume
 EOF

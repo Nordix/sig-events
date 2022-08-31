@@ -381,12 +381,12 @@ kubectl create -f - <<EOF
 apiVersion: eventing.knative.dev/v1
 kind: Trigger
 metadata:
-  name: cd-artifact-published-to-keptn-in
+  name: cd-testsuite-finished-to-keptn-in 
 spec:
   broker: $BROKER_NAME
   filter:
     attributes:
-      type: cd.artifact.published.v1
+      type: cd.test.suite.finished.v1
   subscriber:
     uri: http://keptn-cdevents.keptn:8080/events
 EOF
