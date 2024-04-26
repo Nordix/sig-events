@@ -1,0 +1,64 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: cdevent-change-merged
+  namespace: cdevents
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: "filter"
+          value: "header.match('Ce-Type', 'cd.change.merged.v1')"
+  bindings:
+    - name: gitRepository
+      value: $(body.gitRepository)
+    - name: gitRevision
+      value: $(body.gitRevision)
+  template:
+    spec:
+      params:
+        - name: gitRepository
+        - name: gitRevision
+        - name: context
+        - name: dockerfile
+        - name: target
+        - name: target-name
+        - name: version
+        - name: kanikoExtraArgs
+      resourceTemplates:
+        - apiVersion: "tekton.dev/v1beta1"
+          kind: PipelineRun
+          metadata:
+            generateName: "build-artifact-"
+          spec:
+            serviceAccountName: runner
+            pipelineRef:
+              name: build-artifact
+            workspaces:
+              - name: sources
+                volumeClaimTemplate:
+                  spec:
+                    accessModes:
+                      - ReadWriteOnce # access mode may affect how you can use this volume in parallel tasks
+                    resources:
+                      requests:
+                        storage: 500Mi
+            params:
+              - name: gitRepository
+                value: $(tt.params.gitRepository)
+              - name: gitRevision
+                value: $(tt.params.gitRevision)
+              - name: context
+                value: "poc/docker"
+              - name: dockerfile
+                value: "Dockerfile"
+              - name: target
+                value: "kind-registry:5000/cdevent"
+              - name: target-name
+                value: "poc"
+              - name: version
+                value: "v1.0"
+              - name: workspace
+                value: "sources"

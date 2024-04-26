@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spinnaker-poc-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cdevents-spinnaker-poc
+  template:
+    metadata:
+      labels:
+        app: cdevents-spinnaker-poc
+    spec:
+      containers:
+        - image: 'localhost:5000/cdevent/poc:v1.0'
+          name: cdevents-spinnaker-poc
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spinnaker-poc-service
+  namespace: default
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: cdevents-spinnaker-poc
+  type: ClusterIP
